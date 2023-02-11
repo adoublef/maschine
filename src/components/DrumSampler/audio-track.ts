@@ -16,12 +16,12 @@ export class AudioTrackElement extends LitElement {
 
     fxs = new Map<Effect, number>();
 
-    #onPointerDown() {
+    _onPointerDown() {
         this.dispatchEvent(new CustomEvent("play-back", { detail: this, bubbles: true, composed: true }));
     }
 
     render() {
-        return html`<button @pointerdown=${this.#onPointerDown}>${this.name}</button>`;
+        return html`<button @pointerdown=${this._onPointerDown}>${this.name}</button>`;
     }
 
     static styles = audioTrackStyles;
