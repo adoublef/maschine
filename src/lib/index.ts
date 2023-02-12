@@ -1,3 +1,4 @@
+export * from "./events";
 export * from "./audio";
 
 export const fetchBuffer = async (url: string = "") => {
