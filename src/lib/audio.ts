@@ -13,6 +13,15 @@ export const createBufferSource = async (arrayBuffer: ArrayBuffer, ctx = default
     return audio;
 };
 
+/**
+ * `EffectInsertElement` has min=0 & max=100 there needs
+ * to be a way to normalize to min=0 & max=1
+ * TODO add checks to make sure value is between min & max
+ */
+export const createGainNode = ({ value }: { value: number; }, ctx = defaultContext): AudioNode => {
+    return new GainNode(ctx, { gain: value / 100 });
+};
+
 // // TODO: change signature -> ctx:AudioContext, {value:number, type:BiquadFilterType}
 // export const createEffectNode: CreateEffect = ({ type, value }, ctx = defaultContext) => {
 //     switch (type) {
