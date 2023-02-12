@@ -1,5 +1,6 @@
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
+import { createBufferSource, fetchBuffer } from "../../lib";
 
 @customElement("audio-track")
 export class AudioTrackElement extends LitElement {
@@ -11,20 +12,14 @@ export class AudioTrackElement extends LitElement {
     src?: string;
 
     async #playAudio() {
-        if (!this.src) return;
-        try {
-            const data = await fetch(this.src);
-            const buffer = await data.arrayBuffer();
-            const audioCtx = new AudioContext();
-            const audioBuffer = await audioCtx.decodeAudioData(buffer);
-            const source = audioCtx.createBufferSource();
-            source.buffer = audioBuffer;
-            source.connect(audioCtx.destination);
-            source.start();
-        } catch (err) {
-            console.error(err);
-        }
+        // if (!this.src) return;
+        const buffer = await fetchBuffer(this.src);
+        if (!buffer.byteLength) return; //TODO handle error 
 
+        const track = await createBufferSource(buffer);
+        //TODO handle error
+        track.connect(track.context.destination);
+        track.start();
     }
 
     protected render(): unknown {
