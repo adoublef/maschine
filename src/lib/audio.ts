@@ -22,6 +22,10 @@ export const createGainNode = ({ value }: { value: number; }, ctx = defaultConte
     return new GainNode(ctx, { gain: value / 100 });
 };
 
+export const createStereoPannerNode = ({ value }: { value: number; }, ctx = defaultContext) => {
+    return new StereoPannerNode(ctx, { pan: value / 100 });
+};
+
 // // TODO: change signature -> ctx:AudioContext, {value:number, type:BiquadFilterType}
 // export const createEffectNode: CreateEffect = ({ type, value }, ctx = defaultContext) => {
 //     switch (type) {
