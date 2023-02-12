@@ -1,45 +1,44 @@
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { createBufferSource, fetchBuffer } from "../../lib";
+import { createBufferSource, customEvent, fetchBuffer } from "../../lib";
 
 @customElement("audio-track")
 export class AudioTrackElement extends LitElement {
 
     @property()
-    name = "track";
+    readonly name = "track";
 
     @property()
     src?: string;
 
-    async #playAudio() {
-        // if (!this.src) return;
-        const buffer = await fetchBuffer(this.src);
-        if (!buffer.byteLength) return; // TODO handle error 
+    #data?: AudioBufferSourceNode;
 
-        const track = await createBufferSource(buffer);
+    // effectInserts = new Map<Effect, number>();
+    play() {
+        if (!this.#data) return;
+        this.#data.connect(this.#data.context.destination);
+        this.#data.start();
+    }
+
+    async #load() {
+        const arrBuf = await fetchBuffer(this.src);
+        if (!arrBuf.byteLength) return; // TODO handle error 
+
+        this.#data = await createBufferSource(arrBuf);
         // TODO handle error
 
         switch (this.parentElement?.nodeName.toLowerCase()) {
             case "drum-sampler":
-                let detail: CustomEventInit["detail"] = {
-                    name: this.name,
-                    src: this.src,
-                    track: track,
-                };
-
-                this.dispatchEvent(new CustomEvent("play-audio", {
-                    bubbles: true,
-                    composed: true,
-                    detail
-                }));
+                this.#sendTrack();
                 break;
             default:
-                console.log("drum-sampler is not parent");
-                // TODO send to the drum-machine is one is connected
-                track.connect(track.context.destination);
-                track.start();
+                this.play();
                 break;
         }
+    }
+
+    #sendTrack() {
+        return customEvent(this, "sendtrack", { track: this });
     }
 
     render() {
@@ -47,7 +46,7 @@ export class AudioTrackElement extends LitElement {
         <audio preload="auto">
             <source src=${this.src} type="audio/wav">
         </audio>
-        <button @pointerdown=${this.#playAudio}>${this.name}</button>
+        <button @pointerdown=${this.#load}>${this.name}</button>
         `;
     }
 }
