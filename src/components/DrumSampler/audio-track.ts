@@ -14,22 +14,24 @@ export class AudioTrackElement extends LitElement {
     #data?: AudioBufferSourceNode;
 
     // effectInserts = new Map<Effect, number>();
-    play() {
+    play(...fxs: AudioNode[]) {
         if (!this.#data) return;
-        this.#data.connect(this.#data.context.destination);
+        // NOTE this returns the destination element
+        // Should be a way to reverse it.
+        [...fxs, this.#data.context.destination].reduce((a, b) => a.connect(b), this.#data);
         this.#data.start();
     }
 
-    async #load() {
+    async #sendTrack() {
         const arrBuf = await fetchBuffer(this.src);
         if (!arrBuf.byteLength) return; // TODO handle error 
 
         this.#data = await createBufferSource(arrBuf);
         // TODO handle error
 
-        switch (this.parentElement?.nodeName.toLowerCase()) {
-            case "drum-sampler":
-                this.#sendTrack();
+        switch (this.parentElement?.nodeName) {
+            case "DRUM-SAMPLER":
+                customEvent(this, "sendtrack", { track: this });
                 break;
             default:
                 this.play();
@@ -37,16 +39,14 @@ export class AudioTrackElement extends LitElement {
         }
     }
 
-    #sendTrack() {
-        return customEvent(this, "sendtrack", { track: this });
-    }
-
     render() {
         return html`
         <audio preload="auto">
             <source src=${this.src} type="audio/wav">
         </audio>
-        <button @pointerdown=${this.#load}>${this.name}</button>
+        <button @pointerdown=${this.#sendTrack}>
+            <slot>Audio Track</slot>
+        </button>
         `;
     }
 }

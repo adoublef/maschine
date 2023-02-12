@@ -1,26 +1,39 @@
 import { html, LitElement } from "lit";
-import { customElement } from "lit/decorators.js";
+import { customElement, queryAssignedElements } from "lit/decorators.js";
 import { AudioTrackElement } from "./audio-track";
+import { EffectInsertElement } from "./effect-insert";
 
 @customElement("drum-sampler")
 export class DrumSamplerElement extends LitElement {
 
-    #recvTrack(e: CustomEvent<{ track: AudioTrackElement; }>) {
+    @queryAssignedElements({ slot: "insert" })
+    inserts?: EffectInsertElement[];
+
+    @queryAssignedElements({ slot: "track" })
+    tracks?: AudioTrackElement[];
+
+    #onSendTrack(e: CustomEvent<{ track: AudioTrackElement; }>) {
         const { track } = e.detail;
+        // NOTE may not need to be checked but will do so anyway
         if (!track.src) return;
 
-        // TODO find corresponding effects and pass as params
-        track.play();
+        const fxs = (this.inserts ?? [])?.map((insert) => {
+            return insert.effect();
+        });
+
+        track.play(...fxs);
     }
 
-    #recvInsert() {
-        console.log(`recv insert applied`);
+    #onSendInsert(e: CustomEvent<{ insert: EffectInsertElement; }>) {
+        const { insert } = e.detail;
+
+        console.log({ insert, inserts: this.inserts, tracks: this.tracks });
     }
 
     render() {
         return html`
-        <slot name="insert" @sendinsert=${this.#recvInsert}></slot>
-        <slot name="track" @sendtrack=${this.#recvTrack}></slot>
+        <slot name="insert" @sendinsert=${this.#onSendInsert}></slot>
+        <slot name="track" @sendtrack=${this.#onSendTrack}></slot>
         `;
     }
 }
