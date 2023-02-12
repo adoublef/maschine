@@ -1,9 +1,10 @@
-const FREQ_MAX = 24000;
+export { };
+// const FREQ_MAX = 24000;
 
-const defaultContext = new AudioContext();
+// const defaultContext = new AudioContext();
 
-export const createBufferSource = async (arrayBuffer: ArrayBuffer, ctx = defaultContext) => {
-};
+// export const createBufferSource = async (arrayBuffer: ArrayBuffer, ctx = defaultContext) => {
+// };
 
 // // TODO: change signature -> ctx:AudioContext, {value:number, type:BiquadFilterType}
 // export const createEffectNode: CreateEffect = ({ type, value }, ctx = defaultContext) => {
