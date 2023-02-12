@@ -7,20 +7,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vite + Lit + TS</title>
     <link rel="stylesheet" href="./src/index.css" />
-    <script type="module" src="/src/index.ts"></script>
+    <script type="module" src="./src/index.ts"></script>
 </head>
 
 <body>
     <div>
         <p>This is an example of an "audio-track"</p>
-        <audio-track name="kick02" src="/audio/kick02.wav"></audio-track>
+        <!-- NOTE: name could be slotted inside the anchor tags -->
+        <audio-track src="/audio/kick02.wav">Kick 02</audio-track>
+        <p>This is an example of an "effect-insert"</p>
+        <!-- NOTE: name could be slotted inside the anchor tags -->
+        <!-- TODO: add a for label to relate to the audio-track (?) -->
+        <effect-insert slot="insert" value="70">Gain Effect</effect-insert>
     </div>
     <div>
         <p>This is an example of a "drum-sampler"</p>
         <drum-sampler>
-            <effect-insert slot="insert"></effect-insert>
-            <audio-track slot="track" name="kick01" src="/audio/kick01.wav"></audio-track>
-            <audio-track slot="track" name="snare01" src="/audio/snare01.wav"></audio-track>
+            <effect-insert slot="insert" value="30">Gain</effect-insert>
+            <audio-track slot="track" src="/audio/kick01.wav">Kick 01</audio-track>
+            <audio-track slot="track" src="/audio/snare01.wav">Snare 01</audio-track>
         </drum-sampler>
     </div>
 </body>
