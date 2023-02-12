@@ -1,28 +1,3 @@
-import { LitElement, html } from "lit";
-import { customElement, property } from "lit/decorators.js";
-import { audioTrackStyles, Effect } from "./templates-and-styles";
+import { LitElement } from "lit";
 
-declare global {
-    interface HTMLElementTagNameMap {
-        "audio-track": AudioTrackElement;
-    }
-}
-
-@customElement("audio-track")
-export class AudioTrackElement extends LitElement {
-    @property() name = "track";//type string
-
-    @property() src?: string;
-
-    fxs = new Map<Effect, number>();
-
-    _onPointerDown() {
-        this.dispatchEvent(new CustomEvent("play-back", { detail: this, bubbles: true, composed: true }));
-    }
-
-    render() {
-        return html`<button @pointerdown=${this._onPointerDown}>${this.name}</button>`;
-    }
-
-    static styles = audioTrackStyles;
-}
+export class AudioTrack extends LitElement { }
