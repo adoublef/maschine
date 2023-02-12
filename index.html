@@ -11,7 +11,18 @@
 </head>
 
 <body>
-    <drum-sampler></drum-sampler>
+    <div>
+        <p>This is an example of an "audio-track"</p>
+        <audio-track name="kick02" src="/audio/kick02.wav"></audio-track>
+    </div>
+    <div>
+        <p>This is an example of a "drum-sampler"</p>
+        <drum-sampler>
+            <effect-insert slot="insert"></effect-insert>
+            <audio-track slot="track" name="kick01" src="/audio/kick01.wav"></audio-track>
+            <audio-track slot="track" name="snare01" src="/audio/snare01.wav"></audio-track>
+        </drum-sampler>
+    </div>
 </body>
 
 </html>
