@@ -45,7 +45,7 @@ export class AudioTrackElement extends LitElement {
             <source src=${this.src} type="audio/wav">
         </audio>
         <button @pointerdown=${this.#sendTrack}>
-            <slot>Audio Track</slot>
+            <slot>Audio</slot>
         </button>
         `;
     }

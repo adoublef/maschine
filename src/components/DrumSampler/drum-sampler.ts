@@ -17,9 +17,9 @@ export class DrumSamplerElement extends LitElement {
         // NOTE may not need to be checked but will do so anyway
         if (!track.src) return;
 
-        const fxs = (this.inserts ?? [])?.map((insert) => {
+        const fxs = this.inserts?.map((insert) => {
             return insert.effect();
-        });
+        }) ?? [];
 
         track.play(...fxs);
     }

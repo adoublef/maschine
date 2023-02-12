@@ -1,7 +1,7 @@
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { ref, createRef, Ref } from "lit/directives/ref.js";
-import { createGainNode, customEvent } from "../../lib";
+import { createGainNode, createStereoPannerNode, customEvent } from "../../lib";
 
 @customElement("effect-insert")
 export class EffectInsertElement extends LitElement {
@@ -10,6 +10,7 @@ export class EffectInsertElement extends LitElement {
     type = "gain";
 
     // TODO: ask if there is a more idiomatic way of dealing with this
+    // maybe make private and use a getter?
     @property({ type: Number, reflect: true, attribute: true })
     value = 0;
 
@@ -25,13 +26,18 @@ export class EffectInsertElement extends LitElement {
     #input: Ref<HTMLInputElement> = createRef();
 
     effect() {
+        // TODO obfuscate logic by using a helper function
         switch (this.type) {
             case "gain":
                 // NOTE for now only support gain node
                 return createGainNode({ value: this.value });
+            case "pan":
+                return createStereoPannerNode({ value: this.value });
             default:
-                // NOTE if illegal type, create gain node with value 1
-                return createGainNode({ value: 1 });
+                // NOTE if illegal type, create gain node with value 100
+                // this avoids modifying the output which is what I want
+                // this is a bit inconsistent, should normalize before sending
+                return createGainNode({ value: 100 });
         }
     }
 
@@ -40,8 +46,8 @@ export class EffectInsertElement extends LitElement {
     }
 
     #sendInsert() {
-        switch (this.parentElement?.nodeName.toLowerCase()) {
-            case "drum-sampler":
+        switch (this.parentElement?.nodeName) {
+            case "DRUM-SAMPLER":
                 customEvent(this, "sendinsert", { insert: this });
                 break;
             default:
