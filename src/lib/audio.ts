@@ -24,7 +24,7 @@ export const createGainNode = ({ value }: { value: number; }, ctx = defaultConte
 export const createStereoPannerNode = ({ value }: { value: number; }, ctx = defaultContext) => {
     // return new StereoPannerNode(ctx, { pan: value / 100 });
     let fx = ctx.createStereoPanner();
-    fx.pan.value = -1;
+    fx.pan.value = value / 100;
     return fx;
 };
 
