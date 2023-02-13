@@ -2,6 +2,11 @@ const FREQ_MAX = 24000;
 
 const defaultContext = new AudioContext();
 
+export const connect = (src: AudioBufferSourceNode, ...fxs: AudioNode[]) => {
+    // return [src, ...fxs].reduceRight((a, b) => { a.connect(b); return a; }, src.context.destination);
+    return [...fxs, src.context.destination].reduce((a, b) => a.connect(b), src);
+};
+
 export const createBufferSource = async (arrayBuffer: ArrayBuffer, ctx = defaultContext) => {
     const audio = ctx.createBufferSource();
     try {

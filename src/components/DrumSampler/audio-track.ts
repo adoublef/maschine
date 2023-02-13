@@ -1,6 +1,6 @@
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { createBufferSource, createStereoPannerNode, customEvent, fetchBuffer } from "../../lib";
+import { connect, createBufferSource, customEvent, fetchBuffer } from "../../lib";
 
 @customElement("audio-track")
 export class AudioTrackElement extends LitElement {
@@ -18,7 +18,7 @@ export class AudioTrackElement extends LitElement {
         if (!this.#data) return;
         // NOTE this returns the destination element
         // Should be a way to reverse it.
-        [...fxs, this.#data.context.destination].reduce((a, b) => a.connect(b), this.#data);
+        connect(this.#data, ...fxs);
 
         // const pan = createStereoPannerNode({ value: 1 });
         // this.#data.connect(pan);
