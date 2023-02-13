@@ -1,5 +1,4 @@
-export { };
-// const FREQ_MAX = 24000;
+const FREQ_MAX = 24000;
 
 const defaultContext = new AudioContext();
 
@@ -23,18 +22,32 @@ export const createGainNode = ({ value }: { value: number; }, ctx = defaultConte
 };
 
 export const createStereoPannerNode = ({ value }: { value: number; }, ctx = defaultContext) => {
-    return new StereoPannerNode(ctx, { pan: value / 100 });
+    // return new StereoPannerNode(ctx, { pan: value / 100 });
+    let fx = ctx.createStereoPanner();
+    fx.pan.value = -1;
+    return fx;
 };
 
 // // TODO: change signature -> ctx:AudioContext, {value:number, type:BiquadFilterType}
-// export const createEffectNode: CreateEffect = ({ type, value }, ctx = defaultContext) => {
-//     switch (type) {
-//         case "lowpass":
-//         case "highpass": return createBiquadFilter(ctx, { type, value: value * FREQ_MAX });
-//         case "pan": return createStereoPanner(ctx, { value: (value * 2) - 1 });
-//         default: return createGain(ctx, { value });
-//     }
-// };
+export const createEffectNode = ({ type, value }: { type: Effect, value: number; }, ctx = defaultContext) => {
+    switch (type) {
+        case "lowpass":
+        case "highpass": return new BiquadFilterNode(ctx, { type, frequency: (value / 100) * FREQ_MAX });
+        case "pan": return new StereoPannerNode(ctx, { pan: value / 100 });
+        case "gain": return new GainNode(ctx, { gain: value / 100 });
+        // NOTE if illegal type, create gain node with value 100
+        // this avoids modifying the output which is what I want
+        // this is a bit inconsistent, should normalize before sending
+        default: return new GainNode(ctx, { gain: 1 });
+    }
+
+    // const createBiquadFilter: CreateEffectInner<BiquadFilterNode> = (ctx, { type, value }) => {
+    //     let fx = ctx.createBiquadFilter();
+    //     fx.type = type ?? "highpass"; // what shall be the default filter type
+    //     fx.frequency.value = value;
+    //     return fx;
+    // };
+};
 
 // export const createBufferSource = async (arrayBuffer: ArrayBuffer, ctx = defaultContext) => {
 //     const audio = ctx.createBufferSource();
@@ -78,5 +91,5 @@ export const createStereoPannerNode = ({ value }: { value: number; }, ctx = defa
 //     src.stop();
 // };
 
-// export const effectTyp = ["gain", "pan", "highpass", "lowpass"] as const;
-// export type EffectTyp = typeof effectTyp[number];
+const effects = ["gain", "pan", "highpass", "lowpass"] as const;
+export type Effect = typeof effects[number];

@@ -1,7 +1,7 @@
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { ref, createRef, Ref } from "lit/directives/ref.js";
-import { createGainNode, createStereoPannerNode, customEvent } from "../../lib";
+import { createEffectNode, createGainNode, createStereoPannerNode, customEvent } from "../../lib";
 
 @customElement("effect-insert")
 export class EffectInsertElement extends LitElement {
@@ -12,7 +12,7 @@ export class EffectInsertElement extends LitElement {
     // TODO: ask if there is a more idiomatic way of dealing with this
     // maybe make private and use a getter?
     @property({ type: Number, reflect: true, attribute: true })
-    value = 0;
+    value: number = 0;
 
     @property({ type: Number, reflect: true, attribute: true })
     min = 0;
@@ -32,12 +32,13 @@ export class EffectInsertElement extends LitElement {
                 // NOTE for now only support gain node
                 return createGainNode({ value: this.value });
             case "pan":
+                console.log("pan");
                 return createStereoPannerNode({ value: this.value });
             default:
                 // NOTE if illegal type, create gain node with value 100
                 // this avoids modifying the output which is what I want
                 // this is a bit inconsistent, should normalize before sending
-                return createGainNode({ value: 100 });
+                return createEffectNode({ type: "gain", value: 100 });
         }
     }
 
@@ -61,8 +62,8 @@ export class EffectInsertElement extends LitElement {
         <label>
             <slot>Effect</slot>
         </label>
-        <input ${ref(this.#input)} @change=${this.#sendInsert} @input=${this.#updateValue} .value=${this.value} .max=${this.max}
-            .min=${this.min} .step=${this.step} type="range">
+        <input ${ref(this.#input)} @change=${this.#sendInsert} @input=${this.#updateValue} type="range" .max=${this.max}
+            .min=${this.min} .step=${this.step} .value=${this.value}>
         <output>${this.value}</output>
         `;
     }

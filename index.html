@@ -23,11 +23,14 @@
     <div>
         <p>This is an example of a "drum-sampler"</p>
         <drum-sampler>
-            <effect-insert slot="insert" type="pan" min="-100" value="30">Pan</effect-insert>
-            <effect-insert slot="insert" value="30">Gain</effect-insert>
+            <effect-insert slot="insert" type="pan" min="-100" value="-50">Pan</effect-insert>
+            <!-- <effect-insert slot="insert" value="30">Gain</effect-insert> -->
             <audio-track slot="track" src="/audio/kick01.wav">Kick 01</audio-track>
             <audio-track slot="track" src="/audio/snare01.wav">Snare 01</audio-track>
         </drum-sampler>
+    </div>
+    <div>
+        <input value="10" type="range" />
     </div>
 </body>
 
