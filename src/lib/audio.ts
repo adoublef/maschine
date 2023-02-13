@@ -2,12 +2,11 @@ const FREQ_MAX = 24000;
 
 const defaultContext = new AudioContext();
 
-export const connect = (src: AudioBufferSourceNode, ...fxs: AudioNode[]) => {
-    // return [src, ...fxs].reduceRight((a, b) => { a.connect(b); return a; }, src.context.destination);
+export function connect(src: AudioBufferSourceNode, ...fxs: AudioNode[]) {
     return [...fxs, src.context.destination].reduce((a, b) => a.connect(b), src);
 };
 
-export const createBufferSource = async (arrayBuffer: ArrayBuffer, ctx = defaultContext) => {
+export async function createBufferSource(arrayBuffer: ArrayBuffer, ctx = defaultContext) {
     const audio = ctx.createBufferSource();
     try {
         audio.buffer = await ctx.decodeAudioData(arrayBuffer);
@@ -17,84 +16,30 @@ export const createBufferSource = async (arrayBuffer: ArrayBuffer, ctx = default
     return audio;
 };
 
-/**
- * `EffectInsertElement` has min=0 & max=100 there needs
- * to be a way to normalize to min=0 & max=1
- * TODO add checks to make sure value is between min & max
- */
-export const createGainNode = ({ value }: { value: number; }, ctx = defaultContext): AudioNode => {
-    return new GainNode(ctx, { gain: value / 100 });
-};
-
-export const createStereoPannerNode = ({ value }: { value: number; }, ctx = defaultContext) => {
-    // return new StereoPannerNode(ctx, { pan: value / 100 });
-    let fx = ctx.createStereoPanner();
-    fx.pan.value = value / 100;
-    return fx;
-};
-
-// // TODO: change signature -> ctx:AudioContext, {value:number, type:BiquadFilterType}
-export const createEffectNode = ({ type, value }: { type: Effect, value: number; }, ctx = defaultContext) => {
+// TODO: change signature -> ctx:AudioContext, {value:number, type:BiquadFilterType}
+export function createEffectNode({ type, value }: { type: Effect, value: number; }, ctx = defaultContext) {
     switch (type) {
         case "lowpass":
-        case "highpass": return new BiquadFilterNode(ctx, { type, frequency: (value / 100) * FREQ_MAX });
-        case "pan": return new StereoPannerNode(ctx, { pan: value / 100 });
-        case "gain": return new GainNode(ctx, { gain: value / 100 });
+        case "highpass": // frequency >= 0 && frequency <= 24000
+            const frequency = (value / 100) * FREQ_MAX;
+            return new BiquadFilterNode(ctx, { type, frequency });
+        case "pan": // pan >= -1 && pan <= 1
+            const pan = value / 100;
+            return new StereoPannerNode(ctx, { pan });
+        case "gain": // gain >= 0 && gain <= 1
+            const gain = value / 100;
+            return new GainNode(ctx, { gain });
         // NOTE if illegal type, create gain node with value 100
         // this avoids modifying the output which is what I want
         // this is a bit inconsistent, should normalize before sending
         default: return new GainNode(ctx, { gain: 1 });
     }
-
-    // const createBiquadFilter: CreateEffectInner<BiquadFilterNode> = (ctx, { type, value }) => {
-    //     let fx = ctx.createBiquadFilter();
-    //     fx.type = type ?? "highpass"; // what shall be the default filter type
-    //     fx.frequency.value = value;
-    //     return fx;
-    // };
 };
 
-// export const createBufferSource = async (arrayBuffer: ArrayBuffer, ctx = defaultContext) => {
-//     const audio = ctx.createBufferSource();
-//     audio.buffer = await ctx.decodeAudioData(arrayBuffer);
-//     return audio;
-// };
-
-// const createBiquadFilter: CreateEffectInner<BiquadFilterNode> = (ctx, { type, value }) => {
-//     let fx = ctx.createBiquadFilter();
-//     fx.type = type ?? "highpass"; // what shall be the default filter type
-//     fx.frequency.value = value;
-//     return fx;
-// };
-
-// const createStereoPanner: CreateEffectInner<StereoPannerNode> = (ctx, { value }) => {
-//     let fx = ctx.createStereoPanner();
-//     fx.pan.value = value;
-//     return fx;
-// };
-
-// const createGain: CreateEffectInner<GainNode> = (ctx, { value }) => {
-//     let fx = ctx.createGain();
-//     fx.gain.value = value;
-//     return fx;
-// };
-
-// type CreateEffectInner<T extends AudioNode> = (ctx: AudioContext, params: {
-//     type?: BiquadFilterType;
-//     value: number;
-// }) => T;
-
-// export function start(src: AudioScheduledSourceNode, ...fxs: AudioNode[]): void {
-//     [...fxs, src.context.destination].reduce((a, b) => a.connect(b), src);
-//     src.start();
-// };
-
-// /**
-//  * F@deprecated use `AudioScheduledSourceNode.stop()` instead
-//  */
-// export const stop = (src: AudioScheduledSourceNode) => {
-//     src.stop();
-// };
-
 const effects = ["gain", "pan", "highpass", "lowpass"] as const;
+
+export function isEffect(arg: unknown): arg is Effect {
+    return typeof arg === "string" && effects.includes(arg as Effect);
+}
+
 export type Effect = typeof effects[number];
