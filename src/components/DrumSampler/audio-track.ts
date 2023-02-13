@@ -14,20 +14,15 @@ export class AudioTrackElement extends LitElement {
     #data?: AudioBufferSourceNode;
 
     // effectInserts = new Map<Effect, number>();
+
     play(...fxs: AudioNode[]) {
         if (!this.#data) return;
-        // NOTE this returns the destination element
-        // Should be a way to reverse it.
-        connect(this.#data, ...fxs);
 
-        // const pan = createStereoPannerNode({ value: 1 });
-        // this.#data.connect(pan);
-        // pan.connect(this.#data.context.destination);
-        // this.#data.connect(this.#data.context.destination);
+        connect(this.#data, ...fxs);
         this.#data.start();
     }
 
-    async #sendTrack() {
+    async #play() {
         const arrBuf = await fetchBuffer(this.src);
         if (!arrBuf.byteLength) return; // TODO handle error 
 
@@ -49,7 +44,7 @@ export class AudioTrackElement extends LitElement {
         <audio preload="auto">
             <source src=${this.src} type="audio/wav">
         </audio>
-        <button @pointerdown=${this.#sendTrack}>
+        <button @pointerdown=${this.#play}>
             <slot>Audio</slot>
         </button>
         `;
