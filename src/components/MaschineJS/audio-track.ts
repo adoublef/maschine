@@ -48,32 +48,29 @@ export class AudioTrack extends LitElement {
     }
 }
 
-async function fetchCache(input: string, init?: RequestInit) {
-    // NOTE -- open cache
+/**
+ * This function will lookup a matching request in the local cache.
+ * If there is not a match, it will make the request and store that response.
+ * 
+ * This function throws an error if the fetch response is not in 200 status code range.
+ */
+async function cached(input: string, init?: RequestInit): Promise<Response> {
     const cache = await caches.open(cacheName);
 
-    // NOTE -- if in cache return response
     let response = await cache.match(input);
     if (response) return response.clone();
 
-
     response = await fetch(input, init);
-    await cache.put(input, response.clone());
+    await cache.add(input);
 
     return response;
 }
 
 const createBufferSource = async (src: string, audioContext: AudioContext): Promise<AudioBufferSourceNode> => {
-    try {
-        const response = await fetchCache(src);
-        const buffer = await response.arrayBuffer();
+    const response = await cached(src);
+    const buffer = await response.arrayBuffer();
 
-        const audioBuffer = await audioContext.decodeAudioData(buffer);
+    const audioBuffer = await audioContext.decodeAudioData(buffer);
 
-        return new AudioBufferSourceNode(audioContext, { buffer: audioBuffer });
-
-    } catch (error) {
-        // TODO -- custom error handling
-        throw error;
-    }
+    return new AudioBufferSourceNode(audioContext, { buffer: audioBuffer });
 };
