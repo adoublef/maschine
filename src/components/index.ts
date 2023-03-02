@@ -1,2 +1,2 @@
 export * from "./MyElement/my-element";
-export * from "./DrumSampler";
+export * from "./MaschineJS";
